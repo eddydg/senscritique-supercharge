@@ -20,7 +20,7 @@ const providers = {
         return;
       }
 
-      fetchAndAction(firstResult.href, parsePageCount);
+      fetchPage(firstResult.href).then(parsePageCount);
     };
 
     const parsePageCount = (dom) => {
@@ -38,7 +38,7 @@ const providers = {
       updateCache(q, { matchedPages, readingMinutes });
     };
 
-    fetchAndAction(getUrl(q), parseResults);
+    fetchPage(getUrl(q)).then(parseResults);
   },
 
   fnac: function(q) {
@@ -53,7 +53,7 @@ const providers = {
         return;
       }
 
-      fetchAndAction(firstResult, parsePageCount);
+      fetchPage(firstResult).then(parsePageCount);
     };
 
     const parsePageCount = (dom) => {
@@ -75,7 +75,7 @@ const providers = {
       updateCache(q, { matchedPages, readingMinutes });
     };
 
-    fetchAndAction(getUrl(q), parseResults);
+    fetchPage(getUrl(q)).then(parseResults);
   }
 };
 
@@ -112,7 +112,7 @@ const insertAdditionalStats = (additionalDetailsLi) => {
   }
 };
 
-const cache = JSON.parse(localStorage.get(CACHE_NAME) || null);
+const cache = JSON.parse(localStorage.getItem(CACHE_NAME) || null);
 if (cache && escapedBookTitle in cache) {
   const {
     matchedPages,
@@ -131,14 +131,10 @@ if (cache && escapedBookTitle in cache) {
 * Tools
 */
 
-const req = new XMLHttpRequest();
-function fetchAndAction(url, callback) {
-  req.open("GET", url, true);
-  req.onreadystatechange = (response) => {
-    const dom = domParser.parseFromString(response.responseText, "text/html");
-    callback(dom);
-  };
-  req.send();
+function fetchPage(url) {
+  return fetch(url)
+    .then(res => res.text())
+    .then(content => Promise.resolve(domParser.parseFromString(content, 'text/html')));
 }
 
 function updateCache(bookTitle, values) {

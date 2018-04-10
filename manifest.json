@@ -1,11 +1,12 @@
 {
-  "name": "Todo",
+  "name": "Senscritique Supercharge",
   "version": "0.1",
-  "description": "Todo",
+  "description": "Add extra features to Senscritique.com",
   "permissions": [
     "activeTab",
     "declarativeContent",
-    "storage"
+    "storage",
+    "https://www.amazon.fr/*"
   ],
   "browser_action": {
     "default_icon": "images/get_started16.png"
@@ -13,8 +14,7 @@
   "content_scripts": [
     {
       "matches": [
-        "http://*/*",
-        "https://*/*"
+        "https://www.senscritique.com/livre/*"
       ],
       "js": ["content.js"],
       "run_at": "document_end"
