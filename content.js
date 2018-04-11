@@ -19,8 +19,7 @@ const providers = {
         insertMessage('Not found on Amazon');
         return;
       }
-
-      fetchPage(firstResult.href).then(parsePageCount);
+      return Promise.resolve(firstResults.href);
     };
 
     const parsePageCount = (dom) => {
@@ -38,7 +37,7 @@ const providers = {
       updateCache(q, { matchedPages, readingMinutes });
     };
 
-    fetchPage(getUrl(q)).then(parseResults);
+    fetchPage(getUrl(q)).then(parseResults).then(fetchPage).then(parsePageCount);
   },
 
   fnac: function(q) {
@@ -52,8 +51,7 @@ const providers = {
         insertMessage('Not found on Fnac');
         return;
       }
-
-      fetchPage(firstResult).then(parsePageCount);
+      return Promise.resolve(firstResult);
     };
 
     const parsePageCount = (dom) => {
@@ -75,7 +73,7 @@ const providers = {
       updateCache(q, { matchedPages, readingMinutes });
     };
 
-    fetchPage(getUrl(q)).then(parseResults);
+    fetchPage(getUrl(q)).then(parseResults).then(fetchPage).then(parsePageCount);
   }
 };
 
