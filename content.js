@@ -29,15 +29,13 @@ const providers = {
         insertMessage('Page count not found');
         return;
       }
-      const matchedPages = parseInt(matchedPagesStr[0]);
+      const pages = parseInt(matchedPagesStr[0]);
       const readingMinutes = matchedPages * wordsByPage / wpmSpeed;
-      const additionalDetailsLi = getBookStatsLi(matchedPages, readingMinutes);
 
-      insertAdditionalStats(additionalDetailsLi);
-      updateCache(q, { matchedPages, readingMinutes });
+      return Promise.resolve({ pages, readingMinutes });
     };
 
-    fetchPage(getUrl(q)).then(parseResults).then(fetchPage).then(parsePageCount);
+    return fetchPage(getUrl(q)).then(parseResults).then(fetchPage).then(parsePageCount);
   },
 
   fnac: function(q) {
@@ -65,12 +63,10 @@ const providers = {
         insertMessage('Page count not found');
         return;
       }
-      const matchedPages = parseInt(pageCountStr);
+      const pages = parseInt(pageCountStr);
       const readingMinutes = matchedPages * wordsByPage / wpmSpeed;
-      const additionalDetailsLi = getBookStatsLi(matchedPages, readingMinutes);
 
-      insertAdditionalStats(additionalDetailsLi);
-      updateCache(q, { matchedPages, readingMinutes });
+      return Promise.resolve({ pages, readingMinutes });
     };
 
     fetchPage(getUrl(q)).then(parseResults).then(fetchPage).then(parsePageCount);
@@ -114,20 +110,25 @@ const cache = JSON.parse(localStorage.getItem(CACHE_NAME) || null);
 if (cache && escapedBookTitle in cache) {
   const {
     matchedPages,
-    readingMinutes
+    readingMinutes,
+    lexileScore
   } = cache[escapedBookTitle];
   const additionalDetailsLi = getBookStatsLi(matchedPages, readingMinutes);
   insertAdditionalStats(additionalDetailsLi);
 } else {
   insertMessage('...');
   const provider = providers['amazon'];
-  provider(escapedBookTitle);
+  provider(escapedBookTitle).then(({ pages, readingMinutes }) => {
+   const additionalDetailsLi = getBookStatsLi(pages, readingMinutes);
+   insertAdditionalStats(additionalDetailsLi);
+   updateCache(q, { matchedPages, readingMinutes });
+ });
 }
 
 
 /**
-* Tools
-*/
+ * Tools
+ */
 
 function fetchPage(url) {
   return fetch(url)
@@ -147,4 +148,11 @@ function prettifyMinutes(minutes) {
 
 function escapeText(text = '') {
   return escape(text.trim());
+}
+
+/**
+ * Lexile fetcher
+ */
+function fetchLexileScore(bookName) {
+  return Promise.resolve(0);
 }
