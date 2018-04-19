@@ -1,4 +1,5 @@
 const wpmInput = document.querySelector('#wpm__input');
+const averageWordsPerPage = document.querySelector('#wpp__input');
 const saveOptionsButton = document.querySelector('#save_options');
 
 chrome.storage.sync.get(['userWpm'], onCacheLoaded);
